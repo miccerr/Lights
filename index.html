@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen m-0 p-0">
+
+    <button 
+        id="clickBtn"
+        onclick="sendMessage()"
+        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-base rounded-md transition-colors duration-150 disabled:opacity-50">
+        Click Me
+    </button>
+
+    <script>
+        // =========================================================================
+        // PLACEHOLDERS: Add your credentials here
+        // =========================================================================
+        
+        // 1. Webhook URL (Recommended method)
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1544331746277990460/vk6DBTaqrIxcNPgmIgN7NbeUJo1wFJE9d4rlySOqra0PXr7sn9_rLfNpzNBJbub2qO9V"; 
+
+        // 2. Bot Token (Alternative: If you are making a direct Bot API request)
+        const DISCORD_BOT_TOKEN = "MTUwNzg4MjQzMzc0MjI0NTk1OA.GOEqPW.4dyG8wghpltPIMdz6Fe5Gx6_pKX-VMOvjxjLa0";
+
+        // 3. Discord User ID to ping
+        const DISCORD_USER_ID = "998264676477567029";
+
+        // =========================================================================
+
+        async function sendMessage() {
+            const btn = document.getElementById("clickBtn");
+            const originalText = btn.textContent;
+
+            if (DISCORD_WEBHOOK_URL === "YOUR_DISCORD_WEBHOOK_URL_HERE" || !DISCORD_WEBHOOK_URL) {
+                btn.textContent = "Set Webhook First!";
+                setTimeout(() => { btn.textContent = originalText; }, 2000);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "Shocking...";
+
+            const payload = {
+                content: `Button is clicked <@${DISCORD_USER_ID}>`
+            };
+
+            try {
+                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok || response.status === 204) {
+                    btn.textContent = "Shocked!";
+                } else {
+                    btn.textContent = "Failed";
+                }
+            } catch (err) {
+                btn.textContent = "Error";
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+</html>

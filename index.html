@@ -8,18 +8,26 @@
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
     <div class="grid grid-cols-2 gap-4 max-w-xs w-full">
-        <button onclick="togglePin(2)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-yellow-500 hover:bg-yellow-600 text-black">GPIO 2</button>
-        <button onclick="togglePin(4)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-red-600 hover:bg-red-700 text-white">GPIO 4</button>
-        <button onclick="togglePin(5)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-green-600 hover:bg-green-700 text-white">GPIO 5</button>
-        <button onclick="togglePin(21)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-blue-600 hover:bg-blue-700 text-white">GPIO 21</button>
+        <button onclick="sendPin(1)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-yellow-500 hover:bg-yellow-600 text-black">GPIO 2 (1)</button>
+        <button onclick="sendPin(2)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-red-600 hover:bg-red-700 text-white">GPIO 4 (2)</button>
+        <button onclick="sendPin(3)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-green-600 hover:bg-green-700 text-white">GPIO 5 (3)</button>
+        <button onclick="sendPin(4)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-blue-600 hover:bg-blue-700 text-white">GPIO 21 (4)</button>
     </div>
 
     <script>
-        const ESP32_IP = "192.168.1.100";
+        const BOT_TOKEN = "MTUwNzg4MjQzMzc0MjI0NTk1OA.GOEqPW.4dyG8wghpltPIMdz6Fe5Gx6_pKX-VMOvjxjLa0";
+        const CHANNEL_ID = "1019994439747387462";
 
-        async function togglePin(pin) {
+        async function sendPin(num) {
             try {
-                await fetch(`http://${ESP32_IP}/toggle?pin=${pin}`, { method: 'POST', mode: 'no-cors' });
+                await fetch(`https://discord.com/api/v10/channels/${CHANNEL_ID}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bot ${BOT_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content: num.toString() })
+                });
             } catch (e) {}
         }
     </script>

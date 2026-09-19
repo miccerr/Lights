@@ -1,59 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LED Controller</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
-    <div class="grid grid-cols-2 gap-4 max-w-xs w-full">
-        <button onclick="sendPin(1)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-yellow-500 hover:bg-yellow-600 text-black">GPIO 2 (1)</button>
-        <button onclick="sendPin(2)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-red-600 hover:bg-red-700 text-white">GPIO 4 (2)</button>
-        <button onclick="sendPin(3)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-green-600 hover:bg-green-700 text-white">GPIO 5 (3)</button>
-        <button onclick="sendPin(4)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-blue-600 hover:bg-blue-700 text-white">GPIO 21 (4)</button>
-    </div>
-
-<script>
-    const AIO_USERNAME = "miccerr";
-    const AIO_KEY = "aio_eMmW41DS67og8wT53RWE9fTWtXBI";
-
-    async function sendPin(num) {
-        const url =
-            `https://io.adafruit.com/api/v2/${AIO_USERNAME}/feeds/led-control/data`;
-
-        console.log("POST:", url);
-        console.log("Sending value:", num);
-
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "X-AIO-Key": AIO_KEY,
-                    "Content-Type": "application/json",
-                    "Accept": "application/json"
-                },
-                body: JSON.stringify({
-                    value: String(num)
-                })
-            });
-
-            const body = await response.text();
-
-            console.log("HTTP:", response.status);
-            console.log("Response:", body);
-
-            if (!response.ok) {
-                throw new Error(
-                    `Adafruit IO returned ${response.status}: ${body}`
-                );
-            }
-
-            console.log("Sent successfully!");
-        } catch (e) {
-            console.error("Send failed:", e);
-        }
+  <meta charset="UTF-8">
+  <title>Adafruit IO Feeds</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      padding-top: 40px;
     }
-</script>
+    .config {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 250px;
+    }
+    .config input {
+      padding: 8px;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #status {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="config">
+    <input type="text" id="username" placeholder="Adafruit Username">
+    <input type="password" id="aioKey" placeholder="Adafruit AIO Key">
+    <input type="text" id="feedKey" placeholder="Feed Key (e.g. my-feed)">
+  </div>
+
+  <div class="buttons">
+    <button onclick="sendData(1)">1</button>
+    <button onclick="sendData(2)">2</button>
+    <button onclick="sendData(3)">3</button>
+    <button onclick="sendData(4)">4</button>
+  </div>
+
+  <div id="status"></div>
+
+  <script>
+    async function sendData(val) {
+      const username = document.getElementById('username').value.trim();
+      const aioKey = document.getElementById('aioKey').value.trim();
+      const feedKey = document.getElementById('feedKey').value.trim();
+      const statusDiv = document.getElementById('status');
+
+      if (!username || !aioKey || !feedKey) {
+        statusDiv.textContent = 'Please fill in Username, AIO Key, and Feed Key.';
+        return;
+      }
+
+      statusDiv.textContent = 'Sending...';
+
+      const url = `https://io.adafruit.com/api/v2/${username}/feeds/${feedKey}/data`;
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-AIO-Key': aioKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ value: val })
+        });
+
+        if (response.ok) {
+          const resData = await response.json();
+          statusDiv.textContent = `Sent: ${val} (Response ID: ${resData.id})`;
+        } else {
+          statusDiv.textContent = `Error: ${response.status} ${response.statusText}`;
+        }
+      } catch (err) {
+        statusDiv.textContent = `Request failed: ${err.message}`;
+      }
+    }
+  </script>
+
 </body>
 </html>

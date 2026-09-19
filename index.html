@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LED Controller</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
     <div class="grid grid-cols-2 gap-4 max-w-xs w-full">
@@ -16,27 +15,27 @@
     </div>
 
     <script>
-        const TOPIC = 'esp32_control_unique_998877';
-        
-        console.log("Connecting to MQTT broker...");
-        const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
-            clientId: 'web_' + Math.random().toString(16).substr(2, 8)
-        });
+        const AIO_USERNAME = "miccerr";
+        const AIO_KEY = "aio_eMmW41DS67og8wT53RWE9fTWtXBI";
 
-        client.on('connect', () => {
-            console.log("MQTT Connected successfully via WebSockets!");
-        });
-
-        client.on('error', (err) => {
-            console.error("MQTT Connection Error:", err);
-        });
-
-        function sendPin(num) {
-            if (client.connected) {
-                console.log(`Sending command: ${num} to topic: ${TOPIC}`);
-                client.publish(TOPIC, num.toString());
-            } else {
-                console.error("Cannot send! MQTT Client is not connected.");
+        async function sendPin(num) {
+            console.log("Sending value:", num);
+            try {
+                const response = await fetch(`https://io.adafruit.com/api/v2/${AIO_USERNAME}/feeds/led-control/data`, {
+                    method: 'POST',
+                    headers: {
+                        'X-AIO-Key': AIO_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ value: num.toString() })
+                });
+                if (response.ok) {
+                    console.log("Sent successfully!");
+                } else {
+                    console.error("HTTP Error:", response.status);
+                }
+            } catch (e) {
+                console.error("Network Error:", e);
             }
         }
     </script>

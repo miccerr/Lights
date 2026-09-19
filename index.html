@@ -16,12 +16,27 @@
     </div>
 
     <script>
-        const client = mqtt.connect('wss://broker.hivemq.com:8004/mqtt');
-        const TOPIC = 'mydevice/led/control';
+        const TOPIC = 'esp32_control_unique_998877';
+        
+        console.log("Connecting to MQTT broker...");
+        const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
+            clientId: 'web_' + Math.random().toString(16).substr(2, 8)
+        });
+
+        client.on('connect', () => {
+            console.log("MQTT Connected successfully via WebSockets!");
+        });
+
+        client.on('error', (err) => {
+            console.error("MQTT Connection Error:", err);
+        });
 
         function sendPin(num) {
             if (client.connected) {
+                console.log(`Sending command: ${num} to topic: ${TOPIC}`);
                 client.publish(TOPIC, num.toString());
+            } else {
+                console.error("Cannot send! MQTT Client is not connected.");
             }
         }
     </script>

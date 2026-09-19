@@ -14,30 +14,46 @@
         <button onclick="sendPin(4)" class="py-6 rounded-lg font-bold shadow-lg transition-transform active:scale-95 bg-blue-600 hover:bg-blue-700 text-white">GPIO 21 (4)</button>
     </div>
 
-    <script>
-        const AIO_USERNAME = "miccerr";
-        const AIO_KEY = "aio_eMmW41DS67og8wT53RWE9fTWtXBI";
+<script>
+    const AIO_USERNAME = "miccerr";
+    const AIO_KEY = "aio_eMmW41DS67og8wT53RWE9fTWtXBI";
 
-        async function sendPin(num) {
-            console.log("Sending value:", num);
-            try {
-                const response = await fetch(`https://io.adafruit.com/api/v2/${AIO_USERNAME}/feeds/led-control/data`, {
-                    method: 'POST',
-                    headers: {
-                        'X-AIO-Key': AIO_KEY,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ value: num.toString() })
-                });
-                if (response.ok) {
-                    console.log("Sent successfully!");
-                } else {
-                    console.error("HTTP Error:", response.status);
-                }
-            } catch (e) {
-                console.error("Network Error:", e);
+    async function sendPin(num) {
+        const url =
+            `https://io.adafruit.com/api/v2/${AIO_USERNAME}/feeds/led-control/data`;
+
+        console.log("POST:", url);
+        console.log("Sending value:", num);
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "X-AIO-Key": AIO_KEY,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    value: String(num)
+                })
+            });
+
+            const body = await response.text();
+
+            console.log("HTTP:", response.status);
+            console.log("Response:", body);
+
+            if (!response.ok) {
+                throw new Error(
+                    `Adafruit IO returned ${response.status}: ${body}`
+                );
             }
+
+            console.log("Sent successfully!");
+        } catch (e) {
+            console.error("Send failed:", e);
         }
-    </script>
+    }
+</script>
 </body>
 </html>
